@@ -9,12 +9,12 @@ def guess(N, d) :
     return d.clone().adds(some).chebyshevs().rows
 
 def makeDumb(N, d):
-    dumb = [guess(N,d) for _ in range(20)]
+    dumb = [guess(N,d) for _ in range(N)]
     dumb = [d.chebyshev(lst[0]) for lst in dumb]
     return dumb
 
-def makeSmart(d):
-    smart = [d.shuffle().activeLearning() for _ in range(20)]
+def makeSmart(N, d):
+    smart = [d.shuffle().activeLearning() for _ in range(N)]
     smart = [d.chebyshev(lst[0]) for lst in smart]
     return smart
 
@@ -30,7 +30,7 @@ def experiment(data) :
         the.last = N
         d = DATA().adds(csv(data))
         dumb = makeDumb(N,d)
-        smart = makeSmart(d)
+        smart = makeSmart(N, d)
         dNs = stats.SOME(dumb, txt=f"dumb,{N}")
         
         sNs = stats.SOME(smart, txt=f"smart,{N}")
