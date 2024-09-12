@@ -52,7 +52,7 @@ docs/%.html : %.py etc/py2html.awk etc/b4.html docs/ezr.css Makefile ## make doc
 	gawk -f etc/py2html.awk $< \
 	| pandoc -s  -f markdown --number-sections --toc --toc-depth=5 \
 					-B etc/b4.html --mathjax \
-  		     --css ezr.css --highlight-style tango \
+  		     --css ezr.css --highlight-style monochrome \
 					 --metadata title="$<" \
 	  			 -o $@ 
 
@@ -65,10 +65,11 @@ acts: ## experiment: mqs
 	bash $(Tmp)/$(Act).sh
 
 actb4: ## experiment: mqs
-	mkdir -p $(Out)/$(Act)
+	echo "mkdir -p $(Out)/$(Act)"
+	echo "rm $(Out)/$(Act)/*"
 	$(foreach d, config hpo misc process,         \
 		$(foreach f, $(wildcard $(Data)/$d/*.csv),   \
-				echo "python3 $(PWD)/ezr.py  -t $f -e $(Act)  | tee $(Out)/$(Act)/$(shell basename $f) & "; ))
+				echo "python3 $(PWD)/ezr.py  -D -t $f -e $(Act)  | tee $(Out)/$(Act)/$(shell basename $f) & "; ))
 
 fred:
 	echo $x

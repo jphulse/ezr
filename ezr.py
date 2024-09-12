@@ -654,6 +654,7 @@ def xval(lst:list, m:int=5, n:int=5, some:int=10**6) -> Generator[rows,rows]:
       for i,x in enumerate(lst):
         (test if i >= lo and i < hi else train).append(x)
       train = random.choices(train, k=min(len(train),some))
+      test = random.choices(test, k=min(len(test),some))
       yield train,test
 
 # ### Strings to Things
@@ -836,10 +837,11 @@ class egs:
     mid1s  = stats.SOME(txt="mid-leaf")
     #mid0s  = stats.SOME(txt="mid-all")
     somes += [mid1s]
-    for k in [1,2,3,5]:
+    for k in [1,2,3,4,5]:
       ks   = stats.SOME(txt=f"k{k}")
       somes += [ks]
       for train,test in xval(d.rows):
+        all = d.clone(train)
         cluster = d.cluster(train)
         d1 = d.clone(train)
         mid0  = d1.mid()
@@ -854,6 +856,24 @@ class egs:
             mid1s.add((want[at] - mid1[at])/sd)
             ks.add(  (want[at] - got1   )/sd)
     stats.report(somes)
+
+
+  def clusters12():
+    d = DATA().adds(csv(the.train))
+    for k in [1]:
+      for stop in [12,24,48]:
+        for some in [64,128,256,512,10000000000]:
+          for train,test in xval(d.rows,m=5,n=5,some=some):
+            all = d.clone(train)
+            cluster = d.cluster(train,stop=stop)
+            for want in test:
+              leaf = cluster.leaf(d, want)
+              mid  = leaf.data.mid()
+              rows = leaf.data.rows
+              got  = d.predict(want, rows, k=k) 
+              for at,got1 in got.items():
+                sd = d.cols.all[at].div()
+                print(k,some,stop,(want[at] - mid[at])/sd, (want[at] - got1)/sd,sep=",")
 
   def predicts(file=None):
     d = DATA().adds(csv(file or the.train)).shuffle()
